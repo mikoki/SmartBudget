@@ -1,0 +1,53 @@
+﻿@model SmartBudget.Models.Income
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewBag.Title = "Create";
+}
+
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-united.css" />
+    <title>Incomes</title>
+</head>
+
+<body>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center">
+            <div class="col-4 offset-2 align-self-center">
+                <form method="post" asp-action="IncomeCreate">
+                    <div class="row">
+                        <h3 class="text-success">Create new income</h3>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Title</label>
+                        <input type="text" asp-for="Title" class="form-control">
+                        <span asp-validation-for="Title" class="text-success"></span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Amount</label>
+                        <input type="text" asp-for="Amount" class="form-control">
+                        <span asp-validation-for="Amount" class="text-success"></span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Type</label>
+                        @Html.DropDownList("IncomeTypeId", (IEnumerable<SelectListItem>)ViewBag.IncomeTypeId, new { @class = "form-select" })
+                        <span class="text-success">@Html.ValidationMessageFor(model => model.IncomeTypeId)</span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Date of payment</label>
+                        <input type="date" asp-for="CreatedAt" class="form-control">
+                        <span asp-validation-for="CreatedAt" class="text-success"></span>
+                    </div>
+                    <div class="d-grid gap-2 mt-2 d-md-flex justify-content-between mt-3">
+                        <input type="submit" class="btn btn-success me-md-2 w-100" value="Create" />
+                        <input type="submit" class="btn btn-success w-100" asp-controller="Income" asp-action="Index" value="Back" /> @*Connection between create income and index*@
+                    </div>
+                </form>
+            </div>
+            <div class="col-5 offset-1 align-self-center">
+                <img style="width:300px" src="~/images/income.png" />
+            </div>
+        </div>
+    </div>
+</body>

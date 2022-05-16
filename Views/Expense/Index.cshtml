@@ -1,0 +1,124 @@
+﻿@model SmartBudget.ViewModels.ExpenseIndexData
+@{
+    ViewData["Title"] = "Index";
+    var expenceTypeExist = TempData["DuplicateExpenseType"] as string;
+    var notValid = TempData["NotValid"] as string;
+}
+
+<style>
+    tr:nth-child(even) {
+        background-color: #ffeccc;
+    }
+</style>
+
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-united.css" />
+    <title>Expenses</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-8 p-2">
+                <h2>Expense Type List</h2>
+                <table class="table border-1">
+                    <tr class="border-secondary">
+                        <th class="text-primary w-25">Type</th>
+                        <th class="text-primary w-75">Options</th>
+                    </tr>
+                    @foreach (var item in Model.ExpensesType.OrderBy(e => e.Id))
+                    {
+                        <tr>
+                            <td class="w-75">@Html.DisplayFor(modelItem => item.Type)</td>
+                            <td class="w-25">
+                                @if (!String.IsNullOrEmpty(item.UserId.ToString()))
+                                {
+                                    <a asp-action="ExpenseTypeEdit" asp-route-id="@item.Id">Edit</a><a> |</a>
+                                    <a asp-action="ExpenseTypeDelete" asp-route-id="@item.Id">Delete</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+
+            <div class="col-3 offset-1 align-self-center">
+                <form method="post" asp-action="ExpenseTypeCreate">
+                    <div class="row">
+                        <h4>Create new expense type</h4>
+                    </div>
+                    <div class="row mt-3">
+                        <input type="text" asp-for="ExpenseType.Type" class="form-control" placeholder="Expense type" aria-label="Expense type"><br />
+                    </div>
+
+                    <div class="row mt-3">
+                        <input class="btn btn-primary" type="submit" value="Add" />
+                    </div>
+
+                    <div class="row mt-2">
+                        @if (!string.IsNullOrEmpty(notValid))
+                        {
+                            <div class="alert alert-dismissible alert-primary">
+                                <span>@notValid</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(expenceTypeExist))
+                        {
+                            <div class="alert alert-dismissible alert-primary">
+                                <span>@expenceTypeExist</span>
+                            </div>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div>
+            <div class="row p-2">
+                <div class="container g-3">
+                    <div>
+                        <h2>Expense List</h2>
+                    </div>
+                </div>
+                @if (Model.Expenses.Count() > 0)
+                {
+                    <table class="table border-1">
+                        <tr class="border-secondary">
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["TitleSortParm"]">@Html.DisplayNameFor(model => model.Expense.Title)</a>
+                            </th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["AmountSortParm"]">@Html.DisplayNameFor(model => model.Expense.Amount)</a>
+                            </th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["TypeSortParm"]">Type</a>
+                            </th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["DateSortParm"]">@Html.DisplayNameFor(model => model.Expense.CreatedAt)</a>
+                            </th>
+                            <th class="text-primary">Options</th>
+                        </tr>
+                        @foreach (Expense item in Model.Expenses)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Amount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ExpenseType.Type)</td>
+                                <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                                <td>
+                                    <a asp-action="ExpenseEdit" asp-route-id="@item.Id">Edit</a>
+                                    <a asp-action="ExpenseDelete" asp-route-id="@item.Id">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                }
+                else
+                {
+                    <p>No expense exists.</p>
+                }
+            </div>
+            <a asp-controller="Expense" asp-action="ExpenseCreate" class="btn btn-primary">Create new expense</a>@*Connection between register and controler*@
+        </div>
+    </div>
+</body>

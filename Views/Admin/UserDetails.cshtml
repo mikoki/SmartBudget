@@ -1,0 +1,88 @@
+﻿@model SmartBudget.Models.User
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-united.css" />
+    <title>User details</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            width: 100%;
+            border: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center">
+            <div class="col-6 align-self-center d-flex justify-content-center card border-secondary text-center">
+                <div class="card-header mt-4">Detailed information</div>
+                <div class="card-body">
+                    <h4 class="card-title">
+                        @Model.Username
+                        @if (Model.IsLogged == true)
+                        {
+                            <img style="max-height: 10px; max-width:10px" src="~/images/online.png" />
+                        }
+                    </h4>
+                    <table class="table border-1">
+                        <tr>
+                            <td>First name</td>
+                            <td>@Model.FirstName</td>
+                        </tr>
+                        <tr>
+                            <td>Last name</td>
+                            <td>@Model.LastName</td>
+                        </tr>
+                        <tr>
+                            <td>Role</td>
+                            <td>@Model.Role.RoleName</td>
+                        </tr>
+                        <tr>
+                            <td>Email</td>
+                            <td>@Model.Email</td>
+                        </tr>
+                        <tr>
+                            <td>Date of birth</td>
+                            <td>@Model.BirthDate.ToShortDateString()</td>
+                        </tr>
+                    </table>
+                </div>
+                @if (@Model.isBlocked == false)
+                {
+                    <form class="d-grid gap-3 mt-2 d-md-flex justify-content-between mb-4" method="post">
+                        @if (Model.Role.RoleName == "Admin")
+                        {
+                            <input type="submit" class="btn btn-dark me-md-2 w-100" asp-action="MakeUser" asp-route-id="@Model.Id" value="Make user" />
+                        }
+                        else
+                        {
+                            <input type="submit" class="btn btn-primary me-md-2 w-100" asp-action="MakeAdmin" asp-route-id="@Model.Id" value="Make admin" />
+                        }
+                        <a class="btn btn-info w-100" asp-action="Index">Back</a>
+                        <input type="submit" class="btn btn-danger w-100" asp-action="BlockUser" asp-route-id="@Model.Id" value="Block" />
+                    </form>
+                }
+                else
+                {
+                    <form class="d-grid gap-2 mt-2 d-md-flex justify-content-between mb-4" method="post">
+                        <input type="submit" class="btn btn-success w-100" asp-action="UnblockUser" asp-route-id="@Model.Id" value="Unblock" />
+                        <a class="btn btn-info w-100" asp-action="Index">Back</a>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</body>
+

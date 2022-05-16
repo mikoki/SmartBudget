@@ -1,0 +1,22 @@
+﻿@model SmartBudget.Models.Income
+@{
+    ViewData["Title"] = "IncomeDelete";
+}
+
+<body>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-start">
+            <div class="col-4 mt-4">
+                <form asp-action="IncomeDelete" method="post" asp-route-id="@Model.Id">
+                    <h2>Confirm deletion</h2>
+                    <p>Are you sure you want to <a class="text-success">delete</a> this item?</p>
+                    <input class="btn btn-success" type="submit" value="Delete" />
+                    <a class="btn btn-success" asp-controller="Income" asp-action="Index">Back</a> @*Connection between delete and index*@
+                </form>
+            </div>
+            <div class="col-1 mt-4 px-0">
+                <img style="max-height: 150px;" src="~/images/DeleteConfirmIncome.png" />
+            </div>
+        </div>
+    </div>
+</body>

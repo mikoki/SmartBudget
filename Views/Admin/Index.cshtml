@@ -1,0 +1,123 @@
+﻿@model SmartBudget.ViewModels.AdminUsers
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-united.css" />
+    <title>Users</title>
+    <style>
+
+        .column {
+            float: left;
+            width: 50%;
+            padding: 5px;
+        }
+
+        /* Clearfix (clear floats) */
+        .row::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="row mt-4 justify-content-end text-end">
+        <div class="col-6">
+            <form asp-action="Index" method="get">
+                <div class="form-actions no-color">
+                    <p>
+                        Search by username: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                        <input type="submit" value="Search" class="btn-sm btn-primary" /> |
+                        <a asp-action="Index">Clear filter</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="column">
+            <table class="table border-1">
+                <tr class="border-secondary">
+                    <th>Username</th>
+                    <th style=" text-align: center; vertical-align: middle;">Role</th>
+                    <th style=" text-align: center; vertical-align: middle;">Options</th>
+                </tr>
+                @{ int firstTableCounter = 0;}
+                @while (firstTableCounter < @Model.Users.Count())
+                {
+                    <tr>
+                        <td class="w-50">@Model.Users.ElementAt(firstTableCounter).Username</td>
+                        <td class="w-25" style=" text-align: center; vertical-align: middle;">
+                            @{ if (Model.Users.ElementAt(firstTableCounter).Role.RoleName == "Admin" && @Model.Users.ElementAt(firstTableCounter).isBlocked == false)
+                                {
+                                    <span class="badge rounded-pill bg-primary">Admin</span>
+                                }
+                                else if (Model.Users.ElementAt(firstTableCounter).Role.RoleName == "User" && @Model.Users.ElementAt(firstTableCounter).isBlocked == false)
+                                {
+                                    <span class="badge rounded-pill bg-dark">User</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-danger">Blocked</span>
+                                }
+                            }
+                        </td>
+                        <td class="w-25" style=" text-align: center; vertical-align: middle;">
+                            <a asp-action="UserDetails" asp-route-id="@Model.Users.ElementAt(firstTableCounter).Id">Details</a>
+                        </td>
+                    </tr>
+                    firstTableCounter += 2;
+                }
+            </table>
+        </div>
+        <div class="column">
+            <table class="table border-1">
+                <tr class="border-secondary">
+                    <th>Username</th>
+                    <th style=" text-align: center; vertical-align: middle;">Role</th>
+                    <th style=" text-align: center; vertical-align: middle;">Options</th>
+                </tr>
+                @{ int secondTableCounter = 1;}
+                @while (secondTableCounter < @Model.Users.Count())
+                {
+                    <tr>
+                        <td class="w-50">@Model.Users.ElementAt(secondTableCounter).Username</td>
+                        <td class="w-25" style=" text-align: center; vertical-align: middle;">
+                            @{ if (Model.Users.ElementAt(secondTableCounter).Role.RoleName == "Admin" && @Model.Users.ElementAt(secondTableCounter).isBlocked == false)
+                                {
+                                    <span class="badge rounded-pill bg-primary">Admin</span>
+                                }
+                                else if (Model.Users.ElementAt(secondTableCounter).Role.RoleName == "User" && @Model.Users.ElementAt(secondTableCounter).isBlocked == false)
+                                {
+                                    <span class="badge rounded-pill bg-dark">User</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-danger">Blocked</span>
+                                }
+                            }
+                        </td>
+                        <td class="w-25" style=" text-align: center; vertical-align: middle;">
+                            <a asp-action="UserDetails" asp-route-id="@Model.Users.ElementAt(secondTableCounter).Id">Details</a>
+                        </td>
+                    </tr>
+                    secondTableCounter += 2;
+                }
+            </table>
+        </div>
+    </div>
+
+</body>
+

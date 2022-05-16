@@ -1,0 +1,108 @@
+﻿@model SmartBudget.ViewModels.SavingSavingLogs;
+
+@{
+    ViewData["Title"] = "SavingDetails";
+    var savingError = TempData["SavingError"] as string;
+
+}
+
+<style>
+    tr:nth-child(even) {
+        background-color: #d6ebfb;
+    }
+</style>
+
+<body>
+    <div class="container h-100">
+        <div class="row justify-content-start mt-5">
+            <h2>Saving details</h2>
+            <div class="row justify-content-start">
+                <div class="col-2">
+                    <div class="card text-white bg-success mb-3" style="max-width: 20rem;">
+                        <div class="card-header">Amount goal</div>
+                        <div class="card-body">
+                            <h4 class="card-title">@Model.Saving.AmountGoal</h4>
+                        </div>
+                    </div>
+                </div>
+                @if (!Model.Saving.IsCompleted)
+                {
+                    <div class="col-2">
+                        <div class="card text-white bg-info mb-3" style="max-width: 20rem;">
+                            <div class="card-header">Current amount</div>
+                            <div class="card-body">
+                                <h4 class="card-title">@Model.Saving.CurrentAmount</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 align-items-center ms-auto">
+                        <form method="post">
+                            <div class="row align-items-center">
+                                <h6>Saving options</h6>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <input type="text" class="form-control" placeholder="Enter amount" asp-for="SavingLog.Amount" />
+                                    @if (!String.IsNullOrEmpty(savingError))
+                                    {
+                                        <div class="alert alert-dismissible alert-info">
+                                            <span>@savingError</span>
+                                        </div>
+                                    }
+                                    <span asp-validation-for="@Model.SavingLog.Amount" class="text-info"></span>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2 mt-2 d-md-flex justify-content-between">
+                                <input type="submit" class="btn btn-success me-md-2 w-100" asp-action="AddAmount" asp-route-id="@Model.Saving.Id" value="Fund" />
+                                <input type="submit" class="btn btn-danger w-100" asp-action="WithdrawAmount" asp-route-id="@Model.Saving.Id" value="Withdraw" />
+                            </div>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-5">
+                        <div class="card text-white bg-success mb-3" style="max-width: 20rem;">
+                            <div class="card-header">Congratulations!</div>
+                            <div class="card-body">
+                                <h4 class="card-title">Goal completed.</h4>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="mt-4">
+            <h2>History</h2>
+            @if (Model.SavingLogs.Count() > 0)
+            {
+                <table class="table">
+                    <tr>
+                        <th>Amount</th>
+                        <th>Type</th>
+                        <th>Updated at</th>
+                    </tr>
+                    @foreach (SavingLog item in Model.SavingLogs.OrderByDescending(i => i.UpdatedAt).ThenBy(i => i.Id))
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.Amount)</td>
+                            @if (item.Type == 0)
+                            {
+                                <td><span class="badge bg-success w-50">Fund</span></td>
+                            }
+                            else
+                            {
+                                <td><span class="badge bg-danger w-50">Withdraw</span></td>
+                            }
+                            <td>@Html.DisplayFor(modelItem => item.UpdatedAt)</td>
+                        </tr>
+                    }
+                </table>
+            }
+            else
+            {
+                <p>No records</p>
+            }
+        </div>
+    </div>
+</body>

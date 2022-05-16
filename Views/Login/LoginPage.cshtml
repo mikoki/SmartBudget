@@ -1,0 +1,75 @@
+﻿
+@{
+    Layout = null;
+    var returnUrl = ViewData["ReturnUrl"] as string;
+    var error = TempData["Error"] as string;
+    var registerSuccess = TempData["Success"] as string;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-united.css" />
+    <title>Login Page</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row vh-100 gap-lg-1">
+            <div class="row align-items-center">
+                <img class="h-50 w-auto" src="~/images/logo.png" />
+            </div>
+            <div class="row align-items-center">
+                <div class="col">
+                    <img src="~/images/welcome.jpg" />
+                </div>
+                <div class="col">
+                    @if (!string.IsNullOrEmpty(registerSuccess))
+                    {
+                        <div class="alert alert-dismissible alert-success">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <a>@registerSuccess</a>
+                            <br />
+                        </div>
+                    }
+                    <form class="container" action="/Login/Validate?ReturnUrl=@System.Net.WebUtility.UrlEncode(returnUrl)" method="post">
+                        <div class="row g-3 p-lg-3">
+                            <div class="col">
+                                <input type="text" name="username" id="username" class="form-control" placeholder="Username" aria-label="Username">
+                            </div>
+                        </div>
+                        <div class="row g-3 p-lg-3">
+                            <div class="col">
+                                <input type="password" name="password" id="password" class="form-control" placeholder="Password" aria-label="Password">
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(error))
+                        {
+                            <br />
+                            <div class="alert alert-dismissible alert-danger">
+                                <a>@error</a>
+                            </div>
+                        }
+                        <br /><br />
+                        <div class="row g-3 p-lg-3">
+                            <input class="btn btn-primary" type="submit" value="Login" />
+                        </div>
+
+                        <br />
+                        <div class="row g-3 p-lg-3">
+                            <h6>Oops. Don't have an account? Register now for free.</h6>
+                            <a class="btn btn-outline-primary" asp-controller="Register" asp-action="register">Register</a> @*Connection between register and controler*@
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row align-items-center justify-content-start">
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

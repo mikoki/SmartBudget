@@ -1,0 +1,76 @@
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using SmartBudget.Data;
+using SmartBudget.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+namespace SmartBudget.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
+        {
+            _db = db;
+            _logger = logger;
+        }
+
+        private readonly ApplicationDbContext _db;
+
+        private User GetUserByUsername()
+        {
+            var username = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            User user = _db.Users.Where(u => u.Username == username).FirstOrDefault();
+            return user;
+        }
+
+
+        public IActionResult Index(string fromExpenses, string toExpenses, string fromIncomes, string toIncomes)
+        {
+            DateTime now = DateTime.Now;
+            DateTime startDate = new DateTime(now.Year, now.Month, 1);
+            string firstDayOfMonth = startDate.ToString("dd/MM/yyyy");
+            string today = now.ToString();
+
+            if (string.IsNullOrEmpty(fromExpenses)) {fromExpenses = firstDayOfMonth;}
+            if (string.IsNullOrEmpty(toExpenses)) { toExpenses = today; }
+            if (string.IsNullOrEmpty(fromIncomes)) { fromIncomes = firstDayOfMonth; }
+            if (string.IsNullOrEmpty(toIncomes)) { toIncomes = today; }
+
+            TempData["FromExpenses"] = fromExpenses.ToString();
+
+            User user = GetUserByUsername();
+            IEnumerable<Reminder> reminders = _db.Reminders.Include(s => s.User).Where(r => r.UserId == user.Id).Where(r => r.DateOfReminding == DateTime.Today).Where(r => r.IsDisplayed == false);
+            TempData["Reminders"] = reminders.Count().ToString();
+            return View();
+        }
+
+        [Authorize]
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult Expenses()
+        {
+            return View();
+        }
+
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}

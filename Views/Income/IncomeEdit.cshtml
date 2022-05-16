@@ -1,0 +1,59 @@
+﻿@model SmartBudget.Models.Income
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewBag.Title = "Edit";
+    var incomeEditWarning = TempData["IncomeEditWarning"] as string;
+}
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-united.css" />
+    <title>Incomes</title>
+</head>
+
+<body>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center">
+            <div class="col-4 align-self-center offset-2">
+                <form method="post" asp-action="IncomeEdit" asp-route-id=@Model.Id>
+                    <div class="row">
+                        <h3 class="text-success">Edit income</h3>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Title</label>
+                        <input type="text" asp-for="Title" class="form-control">
+                        <span asp-validation-for="Title" class="text-success"></span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Amount</label>
+                        <input type="text" asp-for="Amount" class="form-control">
+                        <span asp-validation-for="Amount" class="text-success"></span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Type</label>
+                        @Html.DropDownList("IncomeTypeId", (IEnumerable<SelectListItem>)ViewBag.IncomeTypeId, new { @class = "form-select" })
+                        <span class="text-success">@Html.ValidationMessageFor(model => model.IncomeTypeId)</span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Date of payment</label>
+                        <input type="date" asp-for="CreatedAt" class="form-control">
+                        <span asp-validation-for="CreatedAt" class="text-success"></span>
+                    </div>
+                    @if ((!string.IsNullOrEmpty(incomeEditWarning)))
+                    {
+                        <div class="alert alert-dismissible alert-success gap-2 mt-2">
+                            <a>@incomeEditWarning</a>
+                        </div>
+                    }
+                    <div class="d-grid gap-2 mt-2 d-md-flex justify-content-between mt-3">
+                        <input type="submit" class="btn btn-success me-md-2 w-100" value="Edit" />
+                        <input type="submit" class="btn btn-success w-100" asp-controller="Income" asp-action="Index" value="Back" /> @*Connection between edit income and index*@
+                    </div>
+                </form>
+            </div>
+            <div class="col-6 align-self-center">
+                <img style="width:400px" src="~/images/income.png" />
+            </div>
+        </div>
+    </div>
+</body>

@@ -1,0 +1,129 @@
+﻿@model SmartBudget.ViewModels.IncomeIndexData
+@{
+    ViewData["Title"] = "Index";
+    var expenceTypeExist = TempData["DuplicateIncomeType"] as string;
+    var notValid = TempData["NotValid"] as string;
+}
+
+<style>
+    tr:nth-child(even) {
+        background-color: #D3F8D3;
+    }
+
+    a:link, a:visited {
+        color: #38B44A
+    }
+
+</style>
+
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-united.css" />
+    <title>Incomes</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-8 p-2">
+                <h2>Income Type List</h2>
+                <table class="table border-1">
+                    <tr class="border-secondary">
+                        <th class="text-success w-25">Type</th>
+                        <th class="text-success w-75">Options</th>
+                    </tr>
+                    @foreach (var item in Model.IncomesType.OrderBy(e => e.Id))
+                    {
+                        <tr>
+                            <td class="w-75">@Html.DisplayFor(modelItem => item.Type)</td>
+                            <td class="w-25">
+                                @if (!String.IsNullOrEmpty(item.UserId.ToString()))
+                                {
+                                    <a asp-action="IncomeTypeEdit" asp-route-id="@item.Id">Edit</a><a> |</a>
+                                    <a asp-action="IncomeTypeDelete" asp-route-id="@item.Id">Delete</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+
+            <div class="col-3 offset-1 align-self-center">
+                <form method="post" asp-action="IncomeTypeCreate">
+                    <div class="row">
+                        <h4>Create new income type</h4>
+                    </div>
+                    <div class="row mt-3">
+                        <input type="text" asp-for="IncomeType.Type" class="form-control" placeholder="Income type" aria-label="Income type"><br />
+                    </div>
+
+                    <div class="row mt-3">
+                        <input class="btn btn-success" type="submit" value="Add" />
+                    </div>
+
+                    <div class="row mt-2">
+                        @if (!string.IsNullOrEmpty(notValid))
+                        {
+                            <div class="alert alert-dismissible alert-success">
+                                <span>@notValid</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(expenceTypeExist))
+                        {
+                            <div class="alert alert-dismissible alert-success">
+                                <span>@expenceTypeExist</span>
+                            </div>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div>
+            <div class="row p-2">
+                <div class="container g-3">
+                    <div>
+                        <h2>Income List</h2>
+                    </div>
+                </div>
+                @if (Model.Incomes.Count() > 0)
+                {
+                    <table class="table border-1">
+                        <tr class="border-secondary">
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["TitleSortParm"]">@Html.DisplayNameFor(model => model.Income.Title)</a>
+                            </th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["AmountSortParm"]">@Html.DisplayNameFor(model => model.Income.Amount)</a>
+                            </th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["TypeSortParm"]">Type</a>
+                            </th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["DateSortParm"]">@Html.DisplayNameFor(model => model.Income.CreatedAt)</a>
+                            </th>
+                            <th class="text-success">Options</th>
+                        </tr>
+                        @foreach (Income item in Model.Incomes)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Amount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.IncomeType.Type)</td>
+                                <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                                <td>
+                                    <a asp-action="IncomeEdit" asp-route-id="@item.Id">Edit</a>
+                                    <a asp-action="IncomeDelete" asp-route-id="@item.Id">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                }
+                else
+                {
+                    <p>No income exists.</p>
+                }
+            </div>
+            <a asp-controller="Income" asp-action="IncomeCreate" class="btn btn-success" style="color:antiquewhite">Create new income</a>@*Connection between register and controler*@
+        </div>
+    </div>
+</body>

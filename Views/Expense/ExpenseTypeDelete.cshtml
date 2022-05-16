@@ -1,0 +1,22 @@
+﻿@model SmartBudget.Models.ExpenseType
+@{
+    ViewData["Title"] = "ExpenseDeleteType";
+}
+
+<body>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-start">
+            <div class="col-4 mt-4">
+                <form asp-action="ExpenseTypeDelete" method="post" asp-route-id="@Model.Id">
+                    <h2>Confirm deletion</h2>
+                    <p>Are you sure you want to <a class="text-primary">delete</a> this item? Deleting this expense type will lead to deleting all expenses from this type.</p>
+                    <input class="btn btn-primary" type="submit" value="Delete" />
+                    <a class="btn btn-primary" asp-controller="Expense" asp-action="Index">Back</a> @*Connection between expense type delete and index*@
+                </form>
+            </div>
+            <div class="col-1 mt-4 px-0">
+                <img style="max-height: 150px;" src="~/images/DeleteConfirm.png" />
+            </div>
+        </div>
+    </div>
+</body>

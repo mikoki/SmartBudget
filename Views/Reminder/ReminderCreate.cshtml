@@ -1,0 +1,48 @@
+﻿@model SmartBudget.Models.Reminder
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewBag.Title = "Create";
+}
+
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-united.css" />
+    <title>Reminders</title>
+</head>
+
+<body>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center">
+            <div class="col-6 align-self-center">
+                <img style="max-height:100%; max-width:100%" src="~/images/reminder.jpg" />
+            </div>
+            <div class="col-4 offset-1 align-self-center">
+                <form method="post" asp-action="ReminderCreate">
+                    <div class="row">
+                        <h3 class="text-warning">Create new reminder</h3>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Title</label>
+                        <input type="text" asp-for="Title" class="form-control">
+                        <span asp-validation-for="Title" class="text-warning"></span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Description</label>
+                        <input type="text" asp-for="Description" class="form-control">
+                        <span asp-validation-for="Description" class="text-warning"></span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Date of reminding</label>
+                        <input type="date" asp-for="DateOfReminding" class="form-control">
+                        <span asp-validation-for="DateOfReminding" class="text-warning"></span>
+                    </div>
+                    <div class="d-grid gap-2 mt-2 d-md-flex justify-content-between mt-3">
+                        <input type="submit" class="btn btn-warning me-md-2 w-100" value="Create" />
+                        <input type="submit" class="btn btn-warning w-100" asp-controller="Reminder" asp-action="Index" value="Back" /> @*Connection between create reminder and index*@
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>

@@ -1,0 +1,140 @@
+﻿@model SmartBudget.ViewModels.ReminderCategories;
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<style>
+    tr:nth-child(even) {
+        background-color: #f9ffbc;
+    }
+
+    a:active {
+        background-color: #f9ffbc;
+    }
+</style>
+
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-united.css" />
+    <title>Reminders</title>
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="row justify-content-between pt-4">
+            <div class="col-6 align-self-center">
+                <h2>Current reminders</h2>
+            </div>
+            <div class="col-2 align-self-center">
+                <a class="btn btn-warning" asp-controller="Reminder" asp-action="ReminderCreate"> Create new reminder</a> @*Connection between register and controler*@
+            </div>
+        </div>
+        <div>
+            @if (Model.CurrentReminders.Count() > 0)
+            {
+                <table class="table">
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Date of reminding</th>
+                        <th>Options</th>
+                    </tr>
+                    @foreach (Reminder item in Model.CurrentReminders.OrderBy(i => i.DateOfReminding).ThenBy(i => i.CreatedAt))
+                    {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                    <td>@Html.DisplayFor(modelItem => item.DateOfReminding)</td>
+                    @if (item.IsDisplayed)
+                    {
+                        <td>
+                            <span class="badge rounded-pill bg-success">Completed</span>
+                        </td>
+                    }
+                    else{
+                    <td>
+                        <form method="post">
+                            <input type="submit" class="btn btn-primary btn-sm" asp-action="ReminderDone" asp-route-id="@item.Id" value="Complete" />
+                        </form>
+                    </td>
+                    }
+                </tr>
+                    }
+                </table>
+            }
+            else
+            {
+                <em>No records to display</em>
+            }
+        </div>
+        <div class="col-6 align-self-center mt-5">
+            <h2>Upcoming reminders</h2>
+        </div>
+        <div>
+            @if (Model.UpcomingReminders.Count() > 0)
+            {
+
+                <table class="table">
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Date of reminding</th>
+                        <th>Options</th>
+                    </tr>
+                    @foreach (Reminder item in Model.UpcomingReminders.Where(i => i.IsDisplayed == false).OrderBy(i => i.DateOfReminding).ThenBy(i => i.CreatedAt))
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                            <td>@Html.DisplayFor(modelItem => item.DateOfReminding)</td>
+                            <td>
+                                <a style="color:gold" asp-action="ReminderEdit" asp-route-id="@item.Id">Edit</a>
+                                <a style="color:gold" asp-action="ReminderDelete" asp-route-id="@item.Id">Delete</a>
+                            </td>
+                        </tr>
+
+                    }
+                </table>
+            }
+            else
+            {
+                <em>No records to display</em>
+            }
+        </div>
+        <div class="col-6 align-self-center mt-5">
+            <h2>Past reminders</h2>
+        </div>
+        <div>
+            @if (Model.PastReminders.Count() > 0)
+            {
+                <table class="table">
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Date of reminding</th>
+                        <th>Options</th>
+                    </tr>
+                    @foreach (Reminder item in Model.PastReminders.Where(i => i.IsDisplayed == false).OrderBy(i => i.DateOfReminding).ThenBy(i => i.CreatedAt))
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                            <td>@Html.DisplayFor(modelItem => item.DateOfReminding)</td>
+                            <td>
+                                <a style="color:gold" asp-action="ReminderEdit" asp-route-id="@item.Id">Edit</a>
+                                <a style="color:gold" asp-action="ReminderDelete" asp-route-id="@item.Id">Delete</a>
+                            </td>
+                        </tr>
+
+                    }
+                </table>
+            }
+            else
+            {
+                <em>No records to display</em>
+            }
+        </div>
+    </div>
+</body>

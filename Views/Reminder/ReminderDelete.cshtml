@@ -1,0 +1,22 @@
+﻿@model SmartBudget.Models.Reminder
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<body>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-start">
+            <div class="col-4 mt-4">
+                <form asp-action="ReminderDelete" method="post" asp-route-id="@Model.Id">
+                    <h2>Confirm deletion</h2>
+                    <p>Are you sure you want to <a class="text-warning">delete</a> this item?</p>
+                    <input class="btn btn-warning" type="submit" value="Delete" />
+                    <a class="btn btn-warning" asp-controller="Reminder" asp-action="Index">Back</a> @*Connection between delete and index*@
+                </form>
+            </div>
+            <div class="col-1 mt-4 px-0">
+                <img style="max-height: 150px;" src="~/images/DeleteConfirmReminder.png" />
+            </div>
+        </div>
+    </div>
+</body>

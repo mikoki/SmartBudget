@@ -1,0 +1,59 @@
+﻿@model SmartBudget.Models.Expense
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewBag.Title = "Edit";
+    var expenseEditWarning = TempData["ExpenseEditWarning"] as string;
+}
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-united.css" />
+    <title>Expenses</title>
+</head>
+
+<body>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center">
+            <div class="col-4 align-self-center justify-content-center">
+                <form method="post" asp-action="ExpenseEdit" asp-route-id=@Model.Id>
+                    <div class="row">
+                        <h3 class="text-primary">Edit expense</h3>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Title</label>
+                        <input type="text" asp-for="Title" class="form-control">
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Amount</label>
+                        <input type="text" asp-for="Amount" class="form-control">
+                        <span asp-validation-for="Amount" class="text-danger"></span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Type</label>
+                        @Html.DropDownList("ExpenseTypeId", (IEnumerable<SelectListItem>)ViewBag.ExpenseTypeId, new { @class = "form-select" })
+                        <span class="text-danger">@Html.ValidationMessageFor(model => model.ExpenseTypeId)</span>
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label">Date of payment</label>
+                        <input type="date" asp-for="CreatedAt" class="form-control">
+                        <span asp-validation-for="CreatedAt" class="text-danger"></span>
+                    </div>
+                    @if ((!string.IsNullOrEmpty(expenseEditWarning)))
+                    {
+                        <div class="alert alert-dismissible alert-primary gap-2 mt-2">
+                            <a>@expenseEditWarning</a>
+                        </div>
+                    }
+                    <div class="d-grid gap-2 mt-2 d-md-flex justify-content-between mt-3">
+                        <input type="submit" class="btn btn-primary me-md-2 w-100" value="Edit" />
+                        <input type="submit" class="btn btn-primary w-100" asp-controller="Expense" asp-action="Index" value="Back" /> @*Connection between edit expense and index*@
+                    </div>
+                </form>
+            </div>
+            <div class="col-6 align-self-center">
+                <img src="~/images/expense.jpg" />
+            </div>
+        </div>
+    </div>
+</body>

@@ -1,0 +1,75 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    var reminder = TempData["Reminders"] as string;
+}
+
+<head>
+    <style>
+        .geeks {
+            width: 100%;
+            height: 350px;
+        }
+
+        img {
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row text-end h-25">
+            <p>Hello user</p>
+        </div>
+        <div class="row h-25">
+            <img class="geeks" src="~/images/home.jpg" />
+        </div>
+        <div>
+            <figure class="text-center">
+                <blockquote class="blockquote">
+                    <h3 class="mb-0 pt-3">“You don’t have to see the whole staircase, <br /> <span class="text-primary">just take the first step.</span>”</h3>
+
+                </blockquote>
+                <figcaption class="blockquote-footer">
+                    <cite title="Source Title">Martin Luther King, Jr.</cite>
+                </figcaption>
+            </figure>
+
+        </div>
+
+        @if (!String.IsNullOrEmpty(@reminder) && !String.Equals("0", reminder))
+        {
+            <div class="row justify-content-center">
+                <div class="alert-dismissible alert-danger w-75">
+                    You have <strong>@reminder</strong> reminders that are not completed for today. Click <a asp-controller="Reminder" asp-action="Index" class="alert-link">here</a> for more details.
+                </div>
+            </div>
+        }
+        <form method="get" asp-action="Index" asp-route-asd="'23'">
+            <div class="row justify-content-between">
+                <div class="col-4">
+                    <div class="d-grid gap-3 mt-2 d-md-flex justify-content-end">
+                        <input type="date" class="form-control-sm" placeholder="From" />
+                        <input type="date" class="form-control-sm" placeholder="To" />
+                        <input type="submit" class="btn-sm btn-danger" value="Search" />
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="d-grid gap-3 mt-2 d-md-flex justify-content-end">
+                        <input type="date" class="form-control-sm" placeholder="From" />
+                        <input type="date" class="form-control-sm" placeholder="To" />
+                        <input type="submit" class="btn-sm btn-success" value="Search" />
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row pt-3">
+            <div class="col-6 text-start">
+                <h2>Expences</h2>
+            </div>
+            <div class="col-6 text-end">
+                <h2>Incomes</h2>
+            </div>
+        </div>
+    </div>
+</body>
