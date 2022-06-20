@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using OfficeOpenXml;
 using SmartBudget.Data;
 using SmartBudget.Models;
 using SmartBudget.ViewModels;
@@ -95,6 +97,71 @@ namespace SmartBudget.Controllers
             TempData["Reminders"] = reminders.Count().ToString();
             return View(viewModel);
         }
+
+        [Authorize]
+        public void SummaryReport(string fromExpenses, string toExpenses, string fromIncomes, string toIncomes)
+        {
+            User user = GetUserByUsername();
+            HomeData viewModel = new HomeData();
+            viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType)
+                .Where(e => e.UserId == user.Id)
+                .Where(e => e.ExpenseType.UserId == user.Id || e.ExpenseType.UserId == null)
+                .Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses))
+                .Where(e => e.CreatedAt <= DateTime.Parse(toExpenses))
+                .GroupBy(e => e.ExpenseType.Type)
+                .Select(e => new ExpenseAmount() { Type = e.Key, Amount = e.Sum(ex => ex.Amount) })
+                .OrderByDescending(e => e.Amount);
+
+            viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType)
+                .Where(e => e.UserId == user.Id)
+                .Where(e => e.IncomeType.UserId == user.Id || e.IncomeType.UserId == null)
+                .Where(e => e.CreatedAt >= DateTime.Parse(fromIncomes))
+                .Where(e => e.CreatedAt <= DateTime.Parse(toIncomes))
+                .GroupBy(e => e.IncomeType.Type)
+                .Select(e => new IncomeAmount() { Type = e.Key, Amount = e.Sum(ex => ex.Amount) })
+                .OrderByDescending(e => e.Amount);
+
+            ExcelPackage pck = new ExcelPackage();
+            ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Report");
+
+            ws.Cells["A1"].Value = "Title";
+            ws.Cells["B1"].Value = "Report for expenses and incomes by categories.";
+            ws.Cells["A4"].Value = "Date";
+            ws.Cells["B4"].Value = String.Format("From {0:dd MMMM yyyy} to {1:dd MMMM yyyy}", DateTime.Parse(fromExpenses), DateTime.Parse(toExpenses));
+
+            ws.Cells["E4"].Value = "Date";
+            ws.Cells["F4"].Value = String.Format("From {0:dd MMMM yyyy} to {1:dd MMMM yyyy}", DateTime.Parse(fromIncomes), DateTime.Parse(toIncomes));
+
+
+            ws.Cells["A6"].Value = "Type";
+            ws.Cells["B6"].Value = "Amount";
+
+            int rowStart = 7;
+            foreach (ExpenseAmount expense in viewModel.Expenses)
+            {
+                ws.Cells[string.Format("A{0}", rowStart)].Value = expense.Type;
+                ws.Cells[string.Format("B{0}", rowStart)].Value = expense.Amount.ToString();
+                rowStart++;
+            }
+
+            ws.Cells["E6"].Value = "Type";
+            ws.Cells["F6"].Value = "Amount";
+
+            rowStart = 7;
+            foreach (IncomeAmount income in viewModel.Incomes)
+            {
+                ws.Cells[string.Format("E{0}", rowStart)].Value = income.Type;
+                ws.Cells[string.Format("F{0}", rowStart)].Value = income.Amount.ToString();
+                rowStart++;
+            }
+
+            ws.Cells["A:AZ"].AutoFitColumns();
+            Response.Clear();
+            Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            Response.Headers.Add("content-disposition", "attachment: filename=" + "ExcelReport.xlsx");
+            Response.Body.WriteAsync(pck.GetAsByteArray());
+        }
+
 
         [Authorize]
         public IActionResult Privacy()

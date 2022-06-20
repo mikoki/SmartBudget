@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using SmartBudget.ViewModels;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using OfficeOpenXml;
+using Microsoft.AspNetCore.Http;
 
 namespace SmartBudget.Controllers
 {
@@ -40,7 +42,7 @@ namespace SmartBudget.Controllers
 
 
         [Authorize]
-        public IActionResult Index(string sortOrderExpense, ExpenseType expenseType = null)
+        public IActionResult Index(string sortOrderExpense, string fromExpenses, string toExpenses, ExpenseType expenseType = null)
         {
             if (String.IsNullOrEmpty(sortOrderExpense))
             {
@@ -52,6 +54,21 @@ namespace SmartBudget.Controllers
             ViewData["TypeSortParm"] = sortOrderExpense == "Type" ? "type_desc" : "Type";
             ViewData["DateSortParm"] = sortOrderExpense == "Date" ? "date_desc" : "Date";
 
+            DateTime now = DateTime.Now;
+            DateTime startDate = new DateTime(now.Year, now.Month, 1);
+            string firstDayOfMonth = startDate.ToString("yyyy-MM-dd");
+            string today = now.ToString("yyyy-MM-dd");
+
+
+            if (string.IsNullOrEmpty(fromExpenses)) { fromExpenses = firstDayOfMonth; }
+            if (string.IsNullOrEmpty(toExpenses)) { toExpenses = today; }
+
+            if (DateTime.Parse(toExpenses) < DateTime.Parse(fromExpenses))
+            {
+                TempData["ErrorExpenseDate"] = "To date cannot be less than from date. Returning values for current month";
+                fromExpenses = firstDayOfMonth;
+                toExpenses = today;
+            }
 
             User user = GetUserByUsername();
             ExpenseIndexData viewModel = new ExpenseIndexData();
@@ -59,31 +76,31 @@ namespace SmartBudget.Controllers
             switch (sortOrderExpense)
             {
                 case "title_desc":
-                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).OrderByDescending(e => e.Title);
+                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses)).Where(e => e.CreatedAt <= DateTime.Parse(toExpenses)).OrderByDescending(e => e.Title);
                     break;
                 case "Title":
-                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).OrderBy(e => e.Title);
+                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses)).Where(e => e.CreatedAt <= DateTime.Parse(toExpenses)).OrderBy(e => e.Title);
                     break;
                 case "amount_desc":
-                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).OrderByDescending(e => e.Amount);
+                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses)).Where(e => e.CreatedAt <= DateTime.Parse(toExpenses)).OrderByDescending(e => e.Amount);
                     break;
                 case "Amount":
-                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).OrderBy(e => e.Amount);
+                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses)).Where(e => e.CreatedAt <= DateTime.Parse(toExpenses)).OrderBy(e => e.Amount);
                     break;
                 case "type_desc":
-                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).OrderByDescending(e => e.ExpenseType.Type);
+                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses)).Where(e => e.CreatedAt <= DateTime.Parse(toExpenses)).OrderByDescending(e => e.ExpenseType.Type);
                     break;
                 case "Type":
-                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).OrderBy(e => e.ExpenseType.Type);
+                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses)).Where(e => e.CreatedAt <= DateTime.Parse(toExpenses)).OrderBy(e => e.ExpenseType.Type);
                     break;
                 case "date_desc":
-                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).OrderByDescending(e => e.CreatedAt);
+                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses)).Where(e => e.CreatedAt <= DateTime.Parse(toExpenses)).OrderByDescending(e => e.CreatedAt);
                     break;
                 case "Date":
-                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).OrderBy(e => e.CreatedAt);
+                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses)).Where(e => e.CreatedAt <= DateTime.Parse(toExpenses)).OrderBy(e => e.CreatedAt);
                     break;
                 default:
-                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).OrderByDescending(i => i.CreatedAt).ThenByDescending(i => i.Id);
+                    viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses)).Where(e => e.CreatedAt <= DateTime.Parse(toExpenses)).OrderByDescending(i => i.CreatedAt).ThenByDescending(i => i.Id);
                     break;
             }//used for sorting by title and date of creation
 
@@ -93,7 +110,10 @@ namespace SmartBudget.Controllers
             {
                 viewModel.ExpenseType = expenseType;
             }
-     
+
+            TempData["FromExpenses"] = fromExpenses.ToString();
+            TempData["ToExpenses"] = toExpenses.ToString();
+
             return View(viewModel);
         }
 
@@ -338,6 +358,44 @@ namespace SmartBudget.Controllers
             _db.Expenses.Remove(expense);
             _db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        [Authorize]
+        public void ExpenseReport(string fromExpenses, string toExpenses)
+        {
+            User user = GetUserByUsername();
+            ExpenseIndexData viewModel = new ExpenseIndexData();
+            viewModel.Expenses = _db.Expenses.Include(e => e.ExpenseType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromExpenses)).Where(e => e.CreatedAt <= DateTime.Parse(toExpenses)).OrderByDescending(i => i.CreatedAt).ThenByDescending(i => i.Id);
+            ExcelPackage pck = new ExcelPackage();
+            ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Report");
+
+            ws.Cells["A1"].Value = "Title";
+            ws.Cells["B1"].Value = "Expense report";
+            
+            ws.Cells["A2"].Value = "Date";
+            ws.Cells["B2"].Value = String.Format("From {0:dd MMMM yyyy} to {1:dd MMMM yyyy}", DateTime.Parse(fromExpenses), DateTime.Parse(toExpenses));
+
+            ws.Cells["A6"].Value = "Title";
+            ws.Cells["B6"].Value = "Amount";
+            ws.Cells["C6"].Value = "Type";
+            ws.Cells["D6"].Value = "Date of payment";
+
+            int rowStart = 7;
+
+            foreach(Expense expense in viewModel.Expenses)
+            {
+                ws.Cells[string.Format("A{0}", rowStart)].Value = expense.Title;
+                ws.Cells[string.Format("B{0}", rowStart)].Value = expense.Amount.ToString();
+                ws.Cells[string.Format("C{0}", rowStart)].Value = expense.ExpenseType.Type;
+                ws.Cells[string.Format("D{0}", rowStart)].Value = String.Format("{0:dd MMMM yyyy}", expense.CreatedAt); 
+                rowStart++;
+            }
+
+            ws.Cells["A:AZ"].AutoFitColumns();
+            Response.Clear();
+            Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            Response.Headers.Add("content-disposition", "attachment: filename=" + "ReportExpensesDetails.xlsx");
+            Response.Body.WriteAsync(pck.GetAsByteArray());
         }
     }
 }

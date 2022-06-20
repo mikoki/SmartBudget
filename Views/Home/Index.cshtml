@@ -54,6 +54,7 @@
                 </div>
             </div>
         }
+        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="SummaryReport" asp-route-fromExpenses ="@fromExpenses" asp-route-toExpenses ="@toExpenses" asp-route-fromIncomes="@fromIncomes" asp-route-toIncomes="@toIncomes">Export report</a>
         <form method="get" asp-action="Index">
             <div class="row justify-content-between">
                 <div class="col-4">

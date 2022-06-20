@@ -3,6 +3,9 @@
     ViewData["Title"] = "Index";
     var expenceTypeExist = TempData["DuplicateIncomeType"] as string;
     var notValid = TempData["NotValid"] as string;
+    var fromIncomes = TempData["FromIncomes"] as string;
+    var toIncomes = TempData["ToIncomes"] as string;
+    var errorIncomeDate = TempData["ErrorIncomeDate"] as string;
 }
 
 <style>
@@ -13,7 +16,6 @@
     a:link, a:visited {
         color: #38B44A
     }
-
 </style>
 
 <head>
@@ -79,51 +81,67 @@
         </div>
 
         <div>
-            <div class="row p-2">
-                <div class="container g-3">
-                    <div>
-                        <h2>Income List</h2>
+            <form method="get" asp-action="Index">
+                <div class="row p-2">
+                    <div class="container g-3">
+                        <div>
+                            <h2>Income List</h2>
+                        </div>
                     </div>
-                </div>
-                @if (Model.Incomes.Count() > 0)
-                {
-                    <table class="table border-1">
-                        <tr class="border-secondary">
-                            <th>
-                                <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["TitleSortParm"]">@Html.DisplayNameFor(model => model.Income.Title)</a>
-                            </th>
-                            <th>
-                                <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["AmountSortParm"]">@Html.DisplayNameFor(model => model.Income.Amount)</a>
-                            </th>
-                            <th>
-                                <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["TypeSortParm"]">Type</a>
-                            </th>
-                            <th>
-                                <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["DateSortParm"]">@Html.DisplayNameFor(model => model.Income.CreatedAt)</a>
-                            </th>
-                            <th class="text-success">Options</th>
-                        </tr>
-                        @foreach (Income item in Model.Incomes)
-                        {
-                            <tr>
-                                <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                                <td>@Html.DisplayFor(modelItem => item.Amount)</td>
-                                <td>@Html.DisplayFor(modelItem => item.IncomeType.Type)</td>
-                                <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
-                                <td>
-                                    <a asp-action="IncomeEdit" asp-route-id="@item.Id">Edit</a>
-                                    <a asp-action="IncomeDelete" asp-route-id="@item.Id">Delete</a>
-                                </td>
+                    <div class="row">
+                        <div class="d-grid gap-3 mb-2 d-md-flex justify-content-end">
+                            <input type="date" name="fromIncomes" class="form-control-sm" placeholder="From" value="@fromIncomes" />
+                            <input type="date" name="toIncomes" class="form-control-sm" placeholder="To" value="@toIncomes" />
+                            <input type="submit" class="btn-sm btn-success" value="Search" />
+                        </div>
+                    </div>
+                    @if (!String.IsNullOrEmpty(@errorIncomeDate))
+                    {
+                        <div class="alert alert-dismissible alert-danger mt-2 text-center">
+                            @errorIncomeDate
+                        </div>
+                    }
+                    @if (Model.Incomes.Count() > 0)
+                    {
+                        <table class="table border-1">
+                            <tr class="border-secondary">
+                                <th>
+                                    <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["TitleSortParm"]" asp-route-fromIncomes="@fromIncomes" asp-route-toIncomes="@toIncomes">@Html.DisplayNameFor(model => model.Income.Title)</a>
+                                </th>
+                                <th>
+                                    <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["AmountSortParm"]" asp-route-fromIncomes="@fromIncomes" asp-route-toIncomes="@toIncomes">@Html.DisplayNameFor(model => model.Income.Amount)</a>
+                                </th>
+                                <th>
+                                    <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["TypeSortParm"]" asp-route-fromIncomes="@fromIncomes" asp-route-toIncomes="@toIncomes">Type</a>
+                                </th>
+                                <th>
+                                    <a asp-action="Index" asp-route-sortOrderIncome="@ViewData["DateSortParm"]" asp-route-fromIncomes="@fromIncomes" asp-route-toIncomes="@toIncomes">@Html.DisplayNameFor(model => model.Income.CreatedAt)</a>
+                                </th>
+                                <th class="text-success">Options</th>
                             </tr>
-                        }
-                    </table>
-                }
-                else
-                {
-                    <p>No income exists.</p>
-                }
-            </div>
-            <a asp-controller="Income" asp-action="IncomeCreate" class="btn btn-success" style="color:antiquewhite">Create new income</a>@*Connection between register and controler*@
+                            @foreach (Income item in Model.Incomes)
+                            {
+                                <tr>
+                                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Amount)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.IncomeType.Type)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                                    <td>
+                                        <a asp-action="IncomeEdit" asp-route-id="@item.Id">Edit</a>
+                                        <a asp-action="IncomeDelete" asp-route-id="@item.Id">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No records to display</p>
+                    }
+                </div>
+                <a asp-controller="Income" asp-action="IncomeCreate" class="btn btn-success" style="color:antiquewhite">Create new income</a>@*Connection between register and controler*@
+                <a asp-controller="Income" asp-action="IncomeReport" asp-route-fromIncomes="@fromIncomes" asp-route-toIncomes="@toIncomes" class="btn btn-success" style="color:antiquewhite">Export to Excel</a>
+            </form>
         </div>
     </div>
 </body>

@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using SmartBudget.ViewModels;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using OfficeOpenXml;
+using Microsoft.AspNetCore.Http;
 
 namespace SmartBudget.Controllers
 {
@@ -40,7 +42,7 @@ namespace SmartBudget.Controllers
 
 
         [Authorize]
-        public IActionResult Index(string sortOrderIncome, IncomeType incomeType = null)
+        public IActionResult Index(string sortOrderIncome, string fromIncomes, string toIncomes, IncomeType incomeType = null)
         {
             if (String.IsNullOrEmpty(sortOrderIncome))
             {
@@ -52,6 +54,21 @@ namespace SmartBudget.Controllers
             ViewData["TypeSortParm"] = sortOrderIncome == "Type" ? "type_desc" : "Type";
             ViewData["DateSortParm"] = sortOrderIncome == "Date" ? "date_desc" : "Date";
 
+            DateTime now = DateTime.Now;
+            DateTime startDate = new DateTime(now.Year, now.Month, 1);
+            string firstDayOfMonth = startDate.ToString("yyyy-MM-dd");
+            string today = now.ToString("yyyy-MM-dd");
+
+
+            if (string.IsNullOrEmpty(fromIncomes)) { fromIncomes = firstDayOfMonth; }
+            if (string.IsNullOrEmpty(toIncomes)) { toIncomes = today; }
+
+            if (DateTime.Parse(toIncomes) < DateTime.Parse(fromIncomes))
+            {
+                TempData["ErrorExpenseDate"] = "To date cannot be less than from date. Returning values for current month";
+                fromIncomes = firstDayOfMonth;
+                toIncomes = today;
+            }
 
             User user = GetUserByUsername();
             IncomeIndexData viewModel = new IncomeIndexData();
@@ -59,31 +76,31 @@ namespace SmartBudget.Controllers
             switch (sortOrderIncome)
             {
                 case "title_desc":
-                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).OrderByDescending(e => e.Title);
+                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromIncomes)).Where(e => e.CreatedAt <= DateTime.Parse(toIncomes)).OrderByDescending(e => e.Title);
                     break;
                 case "Title":
-                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).OrderBy(e => e.Title);
+                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromIncomes)).Where(e => e.CreatedAt <= DateTime.Parse(toIncomes)).OrderBy(e => e.Title);
                     break;
                 case "amount_desc":
-                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).OrderByDescending(e => e.Amount);
+                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromIncomes)).Where(e => e.CreatedAt <= DateTime.Parse(toIncomes)).OrderByDescending(e => e.Amount);
                     break;
                 case "Amount":
-                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).OrderBy(e => e.Amount);
+                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromIncomes)).Where(e => e.CreatedAt <= DateTime.Parse(toIncomes)).OrderBy(e => e.Amount);
                     break;
                 case "type_desc":
-                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).OrderByDescending(e => e.IncomeType.Type);
+                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromIncomes)).Where(e => e.CreatedAt <= DateTime.Parse(toIncomes)).OrderByDescending(e => e.IncomeType.Type);
                     break;
                 case "Type":
-                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).OrderBy(e => e.IncomeType.Type);
+                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromIncomes)).Where(e => e.CreatedAt <= DateTime.Parse(toIncomes)).OrderBy(e => e.IncomeType.Type);
                     break;
                 case "date_desc":
-                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).OrderByDescending(e => e.CreatedAt);
+                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromIncomes)).Where(e => e.CreatedAt <= DateTime.Parse(toIncomes)).OrderByDescending(e => e.CreatedAt);
                     break;
                 case "Date":
-                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).OrderBy(e => e.CreatedAt);
+                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromIncomes)).Where(e => e.CreatedAt <= DateTime.Parse(toIncomes)).OrderBy(e => e.CreatedAt);
                     break;
                 default:
-                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).OrderByDescending(i => i.CreatedAt).ThenByDescending(i => i.Id);
+                    viewModel.Incomes = _db.Incomes.Include(e => e.IncomeType).Where(e => e.UserId == user.Id).Where(e => e.CreatedAt >= DateTime.Parse(fromIncomes)).Where(e => e.CreatedAt <= DateTime.Parse(toIncomes)).OrderByDescending(i => i.CreatedAt).ThenByDescending(i => i.Id);
                     break;
             }//used for sorting by title, type, amount and date of creation
 
@@ -93,7 +110,10 @@ namespace SmartBudget.Controllers
             {
                 viewModel.IncomeType = incomeType;
             }
-     
+
+            TempData["FromIncomes"] = fromIncomes.ToString();
+            TempData["ToIncomes"] = toIncomes.ToString();
+
             return View(viewModel);
         }
 
@@ -338,6 +358,44 @@ namespace SmartBudget.Controllers
             _db.Incomes.Remove(income);
             _db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        [Authorize]
+        public void IncomeReport(string fromIncomes, string toIncomes)
+        {
+            User user = GetUserByUsername();
+            IncomeIndexData viewModel = new IncomeIndexData();
+            viewModel.Incomes = _db.Incomes.Include(i => i.IncomeType).Where(i => i.UserId == user.Id).Where(i => i.CreatedAt >= DateTime.Parse(fromIncomes)).Where(i => i.CreatedAt <= DateTime.Parse(toIncomes)).OrderByDescending(i => i.CreatedAt).ThenByDescending(i => i.Id);
+            ExcelPackage pck = new ExcelPackage();
+            ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Report");
+
+            ws.Cells["A1"].Value = "Title";
+            ws.Cells["B1"].Value = "Income report";
+
+            ws.Cells["A2"].Value = "Date";
+            ws.Cells["B2"].Value = String.Format("From {0:dd MMMM yyyy} to {1:dd MMMM yyyy}", DateTime.Parse(fromIncomes), DateTime.Parse(toIncomes));
+
+            ws.Cells["A6"].Value = "Title";
+            ws.Cells["B6"].Value = "Amount";
+            ws.Cells["C6"].Value = "Type";
+            ws.Cells["D6"].Value = "Date of payment";
+
+            int rowStart = 7;
+
+            foreach (Income income in viewModel.Incomes)
+            {
+                ws.Cells[string.Format("A{0}", rowStart)].Value = income.Title;
+                ws.Cells[string.Format("B{0}", rowStart)].Value = income.Amount.ToString();
+                ws.Cells[string.Format("C{0}", rowStart)].Value = income.IncomeType.Type;
+                ws.Cells[string.Format("D{0}", rowStart)].Value = String.Format("{0:dd MMMM yyyy}", income.CreatedAt);
+                rowStart++;
+            }
+
+            ws.Cells["A:AZ"].AutoFitColumns();
+            Response.Clear();
+            Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            Response.Headers.Add("content-disposition", "attachment: filename=" + "ReportExpensesDetails.xlsx");
+            Response.Body.WriteAsync(pck.GetAsByteArray());
         }
     }
 }

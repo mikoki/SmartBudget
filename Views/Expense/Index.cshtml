@@ -3,6 +3,9 @@
     ViewData["Title"] = "Index";
     var expenceTypeExist = TempData["DuplicateExpenseType"] as string;
     var notValid = TempData["NotValid"] as string;
+    var fromExpenses = TempData["FromExpenses"] as string;
+    var toExpenses = TempData["ToExpenses"] as string;
+    var errorExpenseDate = TempData["ErrorExpenseDate"] as string;
 }
 
 <style>
@@ -72,53 +75,68 @@
                 </form>
             </div>
         </div>
-
         <div>
-            <div class="row p-2">
-                <div class="container g-3">
-                    <div>
-                        <h2>Expense List</h2>
+            <form method="get" asp-action="Index">
+                <div class="row p-2">
+                    <div class="container g-3">
+                        <div>
+                            <h2>Expense List</h2>
+                        </div>
                     </div>
-                </div>
-                @if (Model.Expenses.Count() > 0)
-                {
-                    <table class="table border-1">
-                        <tr class="border-secondary">
-                            <th>
-                                <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["TitleSortParm"]">@Html.DisplayNameFor(model => model.Expense.Title)</a>
-                            </th>
-                            <th>
-                                <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["AmountSortParm"]">@Html.DisplayNameFor(model => model.Expense.Amount)</a>
-                            </th>
-                            <th>
-                                <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["TypeSortParm"]">Type</a>
-                            </th>
-                            <th>
-                                <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["DateSortParm"]">@Html.DisplayNameFor(model => model.Expense.CreatedAt)</a>
-                            </th>
-                            <th class="text-primary">Options</th>
-                        </tr>
-                        @foreach (Expense item in Model.Expenses)
-                        {
-                            <tr>
-                                <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                                <td>@Html.DisplayFor(modelItem => item.Amount)</td>
-                                <td>@Html.DisplayFor(modelItem => item.ExpenseType.Type)</td>
-                                <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
-                                <td>
-                                    <a asp-action="ExpenseEdit" asp-route-id="@item.Id">Edit</a>
-                                    <a asp-action="ExpenseDelete" asp-route-id="@item.Id">Delete</a>
-                                </td>
+                    <div class="row">
+                        <div class="d-grid gap-3 mb-2 d-md-flex justify-content-end">
+                            <input type="date" name="fromExpenses" class="form-control-sm" placeholder="From" value="@fromExpenses" />
+                            <input type="date" name="toExpenses" class="form-control-sm" placeholder="To" value="@toExpenses" />
+                            <input type="submit" class="btn-sm btn-danger" value="Search" />
+                        </div>
+                    </div>
+                    @if (!String.IsNullOrEmpty(@errorExpenseDate))
+                    {
+                        <div class="alert alert-dismissible alert-danger mt-2 text-center">
+                            @errorExpenseDate
+                        </div>
+                    }
+                    @if (Model.Expenses.Count() > 0)
+                    {
+                        <table class="table border-1">
+                            <tr class="border-secondary">
+                                <th>
+                                    <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["TitleSortParm"]" asp-route-fromExpenses ="@fromExpenses" asp-route-toExpenses ="@toExpenses">@Html.DisplayNameFor(model => model.Expense.Title)</a>
+                                </th>
+                                <th>
+                                    <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["AmountSortParm"]" asp-route-fromExpenses ="@fromExpenses" asp-route-toExpenses ="@toExpenses">@Html.DisplayNameFor(model => model.Expense.Amount)</a>
+                                </th>
+                                <th>
+                                    <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["TypeSortParm"]" asp-route-fromExpenses ="@fromExpenses" asp-route-toExpenses ="@toExpenses">Type</a>
+                                </th>
+                                <th>
+                                    <a asp-action="Index" asp-route-sortOrderExpense="@ViewData["DateSortParm"]" asp-route-fromExpenses ="@fromExpenses" asp-route-toExpenses ="@toExpenses">@Html.DisplayNameFor(model => model.Expense.CreatedAt)</a>
+                                </th>
+                                <th class="text-primary">Options</th>
                             </tr>
-                        }
-                    </table>
-                }
-                else
-                {
-                    <p>No expense exists.</p>
-                }
-            </div>
-            <a asp-controller="Expense" asp-action="ExpenseCreate" class="btn btn-primary">Create new expense</a>@*Connection between register and controler*@
+                            @foreach (Expense item in Model.Expenses)
+                            {
+                                <tr>
+                                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Amount)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.ExpenseType.Type)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                                    <td>
+                                        <a asp-action="ExpenseEdit" asp-route-id="@item.Id">Edit</a>
+                                        <a asp-action="ExpenseDelete" asp-route-id="@item.Id">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No records to display</p>
+                    }
+                </div>
+                <a asp-controller="Expense" asp-action="ExpenseCreate" class="btn btn-primary">Create new expense</a>@*Connection between register and controler*@
+                <a asp-controller="Expense" asp-action="ExpenseReport" asp-route-fromExpenses ="@fromExpenses" asp-route-toExpenses ="@toExpenses" class="btn btn-primary">Export to Excel</a>
+            </form>
         </div>
     </div>
 </body>

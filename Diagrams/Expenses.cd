@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="SmartBudget.Models.Expense">
+    <Position X="0.5" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAADAEAAAAAAAEAAACAAAAiAAAAAAAAAAAAAAAAAAEA=</HashCode>
+      <FileName>Models\Expense.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartBudget.Models.ExpenseType">
+    <Position X="1" Y="3.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAAAAAAAAAAAAAAAgAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>Models\ExpenseType.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartBudget.Controllers.ExpenseController">
+    <Position X="3.5" Y="0.5" Width="7.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAACEAAAAAAAwAAAkkIBAAAACAAAEAAAAAAAA=</HashCode>
+      <FileName>Controllers\ExpenseController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

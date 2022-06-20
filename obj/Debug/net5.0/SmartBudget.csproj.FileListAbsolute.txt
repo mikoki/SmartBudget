@@ -457,3 +457,8 @@ D:\TU\1_sem_mag\PI\SmartBudget\SmartBudget\obj\Debug\net5.0\Razor\Views\Saving\S
 D:\TU\1_sem_mag\PI\SmartBudget\SmartBudget\obj\Debug\net5.0\Razor\Views\Reminder\ReminderDelete.cshtml.g.cs
 D:\TU\1_sem_mag\PI\SmartBudget\SmartBudget\obj\Debug\net5.0\Razor\Views\Admin\Index.cshtml.g.cs
 D:\TU\1_sem_mag\PI\SmartBudget\SmartBudget\obj\Debug\net5.0\Razor\Views\Admin\UserDetails.cshtml.g.cs
+D:\TU\1_sem_mag\PI\SmartBudget\SmartBudget\bin\Debug\net5.0\EPPlus.dll
+D:\TU\1_sem_mag\PI\SmartBudget\SmartBudget\bin\Debug\net5.0\EPPlus.Interfaces.dll
+D:\TU\1_sem_mag\PI\SmartBudget\SmartBudget\bin\Debug\net5.0\EPPlus.System.Drawing.dll
+D:\TU\1_sem_mag\PI\SmartBudget\SmartBudget\bin\Debug\net5.0\Microsoft.IO.RecyclableMemoryStream.dll
+D:\TU\1_sem_mag\PI\SmartBudget\SmartBudget\obj\Debug\net5.0\Razor\Views\Predict\Index.cshtml.g.cs
