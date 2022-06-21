@@ -10,6 +10,7 @@
     var nextPeriodSecond = TempData["NextPeriodSecond"] as string;
     var predictedBalanceThird = TempData["PredictedBalanceThird"] as string;
     var nextPeriodThird = TempData["NextPeriodThird"] as string;
+    var b1Currency = TempData["B1Currency"] as string;
 }
 
 <head>
@@ -56,16 +57,16 @@ chart.render();
                 <div class="row mt-2">
                     <div id="chartContainer" style="height: 370px; width: 100%;"></div>
                     <p>
-                        It seems that there is a
+                        It seems that yor budget will
                         @if (Double.Parse(b1) < 0)
                         {
-                            <span class="text-danger">@Math.Abs(float.Parse(b1))% decrease</span>
+                        <span class="text-danger">decrease with @b1Currency </span>
                         }
                         else
                         {
-                            <span class="text-success">@Math.Abs(float.Parse(b1))% increase</span>
+                            <span class="text-success">increase with @b1Currency</span>
                         }
-                        in your balance.
+                        after every period.
                         The predicted balances are present in the chart.
                     </p>
                     <div class="row justify-content-center">

@@ -154,6 +154,7 @@ namespace SmartBudget.Controllers
 
                 TempData["B0"] = b0.ToString();
                 TempData["B1"] = b1.ToString();
+                TempData["B1Currency"] = Math.Abs(b1).ToString("C", CultureInfo.CurrentCulture);
                 TempData["PredictedBalanceFirst"] = predictedBalanceFirst.ToString();
                 TempData["NextPeriodFirst"] = DateTime.Now.AddMonths(1).ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"));
                 TempData["PredictedBalanceSecond"] = predictedBalanceSecond.ToString();
