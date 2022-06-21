@@ -50,9 +50,7 @@ namespace SmartBudget.Controllers
             List<DataPoint> dataPoints = new List<DataPoint>();
 
             int lastMonth = 0;
-            int nextMonth = 0;
             int lastYear = 0;
-            int nextYear = 0;
 
             User user = GetUserByUsername();
             using (NpgsqlConnection connection = new NpgsqlConnection(_db.Database.GetConnectionString()))
@@ -147,27 +145,22 @@ namespace SmartBudget.Controllers
 
                 double b1 = sumOffsetXMulOffsetY / xOffsetSquaredSum;
                 double b0 = (double)meanY - (meanX * b1);
-                double predictedBalance = b0 + b1 * (algorithmData.Count() + 1);
+                double predictedBalanceFirst = b0 + b1 * (algorithmData.Count() + 1);
+                dataPoints.Add(new DataPoint(DateTime.Now.AddMonths(1).ToString("MMM yyyy", CultureInfo.GetCultureInfo("en-US")), (decimal)predictedBalanceFirst));
+                double predictedBalanceSecond = b0 + b1 * (algorithmData.Count() + 2);
+                dataPoints.Add(new DataPoint(DateTime.Now.AddMonths(2).ToString("MMM yyyy", CultureInfo.GetCultureInfo("en-US")), (decimal)predictedBalanceSecond));
+                double predictedBalanceThird = b0 + b1 * (algorithmData.Count() + 3);
+                dataPoints.Add(new DataPoint(DateTime.Now.AddMonths(3).ToString("MMM yyyy", CultureInfo.GetCultureInfo("en-US")), (decimal)predictedBalanceThird));
 
-                if (lastMonth == 12)
-                {
-                    nextMonth = 1;
-                    nextYear = lastYear + 1;
-                }
-                else
-                {
-                    nextMonth = lastMonth + 1;
-                    nextYear = lastYear;
-                }
-
-                System.Globalization.DateTimeFormatInfo mfi = new System.Globalization.DateTimeFormatInfo();
-                string strMonthName = mfi.GetMonthName(nextMonth).ToString();
-
+                TempData["B0"] = b0.ToString();
                 TempData["B1"] = b1.ToString();
-                TempData["PredictedBalance"] = predictedBalance.ToString();
-                TempData["NextPeriod"] = DateTime.Now.AddMonths(1).ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"));
+                TempData["PredictedBalanceFirst"] = predictedBalanceFirst.ToString();
+                TempData["NextPeriodFirst"] = DateTime.Now.AddMonths(1).ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"));
+                TempData["PredictedBalanceSecond"] = predictedBalanceSecond.ToString();
+                TempData["NextPeriodSecond"] = DateTime.Now.AddMonths(2).ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"));
+                TempData["PredictedBalanceThird"] = predictedBalanceThird.ToString();
+                TempData["NextPeriodThird"] = DateTime.Now.AddMonths(3).ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"));
 
-                dataPoints.Add(new DataPoint(DateTime.Now.AddMonths(1).ToString("MMM yyyy", CultureInfo.GetCultureInfo("en-US")), (decimal)predictedBalance));
                 ViewBag.DataPoints = JsonConvert.SerializeObject(dataPoints);
             }
 

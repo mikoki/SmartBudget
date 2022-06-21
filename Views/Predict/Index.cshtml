@@ -2,9 +2,14 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    var b0 = TempData["B0"] as string;
     var b1 = TempData["B1"] as string;
-    var predictedBalance = TempData["PredictedBalance"] as string;
-    var nextPeriod = TempData["NextPeriod"] as string;
+    var predictedBalanceFirst = TempData["PredictedBalanceFirst"] as string;
+    var nextPeriodFirst = TempData["NextPeriodFirst"] as string;
+    var predictedBalanceSecond = TempData["PredictedBalanceSecond"] as string;
+    var nextPeriodSecond = TempData["NextPeriodSecond"] as string;
+    var predictedBalanceThird = TempData["PredictedBalanceThird"] as string;
+    var nextPeriodThird = TempData["NextPeriodThird"] as string;
 }
 
 <head>
@@ -34,7 +39,7 @@ chart.render();
 </head>
 <body>
     <div class="row h-100">
-        @if (string.IsNullOrEmpty(predictedBalance))
+        @if (string.IsNullOrEmpty(predictedBalanceFirst))
         {
             <div class="mt-4">
                 <p>
@@ -48,28 +53,49 @@ chart.render();
         else
         {
             <div class="col align-self-center">
-                <div class="row">
+                <div class="row mt-2">
                     <div id="chartContainer" style="height: 370px; width: 100%;"></div>
                     <p>
                         It seems that there is a
                         @if (Double.Parse(b1) < 0)
                         {
-                            <span class="text-danger">decrease</span>
+                            <span class="text-danger">@Math.Abs(float.Parse(b1))% decrease</span>
                         }
                         else
                         {
-                            <span class="text-success">increase</span>
+                            <span class="text-success">@Math.Abs(float.Parse(b1))% increase</span>
+                            <span class="text-success">@Math.Abs(float.Parse(b1))% increase</span>
                         }
                         in your balance.
+                        The predicted balances are present in the chart.
                     </p>
-                    <p>
+                    <div class="row justify-content-center">
+                        <table class="table border-1 w-50 text-center">
+                            <tr>
+                                <th>Month</th>
+                                <th>Calculated value</th>
+                            </tr>
+                            <tr>
+                                <td>@nextPeriodFirst</td>
+                                <td>@predictedBalanceFirst</td>
+                            </tr>
+                            <tr>
+                                <td>@nextPeriodSecond</td>
+                                <td>@predictedBalanceSecond</td>
+                            </tr>
+                            <tr>
+                                <td>@nextPeriodThird</td>
+                                <td>@predictedBalanceThird</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p class="mt-2">
                         <em>
                             If you don't see partcular month in the chart, please provide information for the
                             <a class="text-danger" asp-controller="Expense" asp-action="Index">expenses</a> and
                             <a class="text-success" asp-controller="Income" asp-action="Index">incomes</a>
                         </em>
                     </p>
-                    <p>Calculated value for <strong>@nextPeriod</strong> is <strong>@predictedBalance</strong>. The predicted balance is included in the chart.</p>
                 </div>
             </div>
         }
