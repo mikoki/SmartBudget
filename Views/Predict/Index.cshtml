@@ -2,6 +2,9 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    var b1 = TempData["B1"] as string;
+    var predictedBalance = TempData["PredictedBalance"] as string;
+    var nextPeriod = TempData["NextPeriod"] as string;
 }
 
 <head>
@@ -17,6 +20,7 @@ var chart = new CanvasJS.Chart("chartContainer", {
 		shared: true
 	},
 	data: [{
+        markerColor: "#00003f",
 		type: "line",
 		name: "Balance",
 		showInLegend: true,
@@ -29,5 +33,45 @@ chart.render();
     </script>
 </head>
 <body>
-    <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+    <div class="row h-100">
+        @if (string.IsNullOrEmpty(predictedBalance))
+        {
+            <div class="mt-4">
+                <p>
+                    Oops, you don't have any records yet. Please add
+                    <a class="text-danger" asp-controller="Expense" asp-action="Index">expenses</a> and
+                    <a class="text-success" asp-controller="Income" asp-action="Index">incomes</a>
+                    in order to use this functionality.
+                </p>
+            </div>
+        }
+        else
+        {
+            <div class="col align-self-center">
+                <div class="row">
+                    <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+                    <p>
+                        It seems that there is a
+                        @if (Double.Parse(b1) < 0)
+                        {
+                            <span class="text-danger">decrease</span>
+                        }
+                        else
+                        {
+                            <span class="text-success">increase</span>
+                        }
+                        in your balance.
+                    </p>
+                    <p>
+                        <em>
+                            If you don't see partcular month in the chart, please provide information for the
+                            <a class="text-danger" asp-controller="Expense" asp-action="Index">expenses</a> and
+                            <a class="text-success" asp-controller="Income" asp-action="Index">incomes</a>
+                        </em>
+                    </p>
+                    <p>Calculated value for <strong>@nextPeriod</strong> is <strong>@predictedBalance</strong>. The predicted balance is included in the chart.</p>
+                </div>
+            </div>
+        }
+    </div>
 </body>

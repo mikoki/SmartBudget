@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Npgsql;
+using NpgsqlTypes;
 using SmartBudget.Data;
 using SmartBudget.Models;
 using SmartBudget.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -61,7 +63,7 @@ namespace SmartBudget.Controllers
                                                 extract (year from e.""CreatedAt"") as ""year"",
                                                 extract (month from e.""CreatedAt"") as ""month"",
                                                 sum(e.""Amount"") as ""amount""
-                                            from ""Expenses"" e where e.""UserId"" = 1
+                                            from ""Expenses"" e where e.""UserId"" = :userId
                                             group by ""year"", ""month""
                                         ),
                                         incomes as (
@@ -69,7 +71,7 @@ namespace SmartBudget.Controllers
                                                 extract (year from i.""CreatedAt"") as ""year"",
                                                 extract (month from i.""CreatedAt"") as ""month"",
                                                 sum(i.""Amount"") as ""amount"" 
-                                            from ""Incomes"" i where i.""UserId"" = 1
+                                            from ""Incomes"" i where i.""UserId"" = :userId
                                             group by ""year"", ""month""
                                         )
                                         select 
@@ -89,6 +91,7 @@ namespace SmartBudget.Controllers
                 {
 
                     connection.Open();
+                    sqlCommand.Parameters.AddWithValue("userId", NpgsqlDbType.Integer, user.Id);
                     NpgsqlDataReader dataReader = sqlCommand.ExecuteReader();
                     int count = 1;
                     while (dataReader.Read())
@@ -100,9 +103,9 @@ namespace SmartBudget.Controllers
                         }
 
                         algorithmData.Add(count, ConvertFromDBVal<decimal>(values[2]));
-                        chartData.Add(count, ConvertFromDBVal<int>(values[0]) + "-" + ConvertFromDBVal<int>(values[1]));
                         lastYear = ConvertFromDBVal<int>(values[0]);
                         lastMonth = ConvertFromDBVal<int>(values[1]);
+                        chartData.Add(count, ConvertFromDBVal<string>(new DateTime(lastYear, lastMonth, 1).ToString("MMM yyyy", CultureInfo.InvariantCulture)));
                         count++;
                     }
                     dataReader.Close();
@@ -123,41 +126,50 @@ namespace SmartBudget.Controllers
             double sumOffsetXMulOffsetY = 0.0;
             double xOffsetSquaredSum = 0.0;
 
-           foreach (var data in algorithmData)
+            foreach (var data in algorithmData)
             {
                 meanX = meanX + data.Key;
                 meanY = meanY + data.Value;
             }
 
-            meanX = meanX / algorithmData.Count();
-            meanY = meanY / algorithmData.Count();
-
-            foreach (var data in algorithmData)
+            if (algorithmData.Count() > 0)
             {
-                sumOffsetXMulOffsetY = sumOffsetXMulOffsetY + (data.Key - meanX) * (double)(data.Value - meanY);
-                xOffsetSquaredSum = xOffsetSquaredSum + Math.Pow(data.Key - meanX, 2);
-                dataPoints.Add(new DataPoint(chartData.GetValueOrDefault(data.Key), data.Value));
-            }
 
-            double b1 = sumOffsetXMulOffsetY / xOffsetSquaredSum;
-            double b0 = (double)meanY - (meanX * b1);
-            Console.WriteLine(b1);
-            Console.WriteLine(b0);
-            double predictedBalance = b0 + b1 * (algorithmData.Count() + 1);
+                meanX = meanX / algorithmData.Count();
+                meanY = meanY / algorithmData.Count();
 
-            if(lastMonth == 12)
-            {
-                nextMonth = 1;
-                nextYear = lastYear + 1;
-            }
-            else
-            {
-                nextMonth = lastMonth + 1;
-                nextYear = lastYear;
-            }
+                foreach (var data in algorithmData)
+                {
+                    sumOffsetXMulOffsetY = sumOffsetXMulOffsetY + (data.Key - meanX) * (double)(data.Value - meanY);
+                    xOffsetSquaredSum = xOffsetSquaredSum + Math.Pow(data.Key - meanX, 2);
+                    dataPoints.Add(new DataPoint(chartData.GetValueOrDefault(data.Key), data.Value));
+                }
 
-            dataPoints.Add(new DataPoint(nextYear + "-" + nextMonth, (decimal)predictedBalance));
-            ViewBag.DataPoints = JsonConvert.SerializeObject(dataPoints);
+                double b1 = sumOffsetXMulOffsetY / xOffsetSquaredSum;
+                double b0 = (double)meanY - (meanX * b1);
+                double predictedBalance = b0 + b1 * (algorithmData.Count() + 1);
+
+                if (lastMonth == 12)
+                {
+                    nextMonth = 1;
+                    nextYear = lastYear + 1;
+                }
+                else
+                {
+                    nextMonth = lastMonth + 1;
+                    nextYear = lastYear;
+                }
+
+                System.Globalization.DateTimeFormatInfo mfi = new System.Globalization.DateTimeFormatInfo();
+                string strMonthName = mfi.GetMonthName(nextMonth).ToString();
+
+                TempData["B1"] = b1.ToString();
+                TempData["PredictedBalance"] = predictedBalance.ToString();
+                TempData["NextPeriod"] = DateTime.Now.AddMonths(1).ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"));
+
+                dataPoints.Add(new DataPoint(DateTime.Now.AddMonths(1).ToString("MMM yyyy", CultureInfo.GetCultureInfo("en-US")), (decimal)predictedBalance));
+                ViewBag.DataPoints = JsonConvert.SerializeObject(dataPoints);
+            }
 
             return View();
         }
